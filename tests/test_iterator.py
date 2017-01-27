@@ -61,3 +61,50 @@ class TestIterator(unittest.TestCase):
                     range(start_2, end_2 + step_2, step_2))
 
             self.assertEqual(list(asc * desc), list(v_product_range))
+
+class TestSeqIterator(unittest.TestCase):
+    def test_valid_init(self):
+        self.assertIsInstance(SeqIterator([1, 2, 3]), SeqIterator)
+        self.assertIsInstance(SeqIterator((1, 2, 3)), SeqIterator)
+
+
+    def test_type_error_init(self):
+        with self.assertRaises(TypeError): SeqIterator(1, 'a')
+        with self.assertRaises(TypeError): SeqIterator('a', 1)
+        with self.assertRaises(TypeError): SeqIterator('ntoeuh', 'z')
+        with self.assertRaises(TypeError): SeqIterator([1], [2])
+
+    def test_value_error_init(self):
+        with self.assertRaises(ValueError): SeqIterator([1, 2], 8)
+        with self.assertRaises(ValueError): SeqIterator([1, 2], -3)
+
+    def test_generated_values(self):
+        self.assertEqual([1, 2, 3], list(SeqIterator([1, 2, 3])))
+        self.assertEqual([1, 'foo', 3], list(SeqIterator([1, 'foo', 3])))
+        self.assertEqual([{}, 'foo', 3], list(SeqIterator([{}, 'foo', 3])))
+
+        self.assertEqual([1, 2, 3], list(SeqIterator((1, 2, 3))))
+        self.assertEqual([1, 'foo', 3], list(SeqIterator((1, 'foo', 3))))
+        self.assertEqual([{}, 'foo', 3], list(SeqIterator(({}, 'foo', 3))))
+
+        self.assertEqual((1, 2, 3), tuple(SeqIterator([1, 2, 3])))
+        self.assertEqual((1, 'foo', 3), tuple(SeqIterator([1, 'foo', 3])))
+        self.assertEqual(({}, 'foo', 3), tuple(SeqIterator([{}, 'foo', 3])))
+
+    def test_multiplication_operator(self):
+        self.assertEqual(
+                list(SeqIterator([1, 2, 3]) * SeqIterator([3, 2, 1])),
+                list(product([1, 2, 3], [3, 2, 1])))
+
+        def mksequence():
+            value_1, value_2 = randint(1, 100), randint(1, 100)
+            step = 1 if value_1 < value_2 else -1
+            return tuple(range(value_1, value_2, step * randint(1, 10)))
+
+        for i in range(50):
+            seq_1, seq_2 = mksequence(), mksequence()
+
+            seq_it_1, seq_it_2 = SeqIterator(seq_1), SeqIterator(seq_2)
+            v_product_seq = product(seq_1, seq_2)
+
+            self.assertEqual(list(seq_it_1 * seq_it_2), list(v_product_seq))

@@ -77,6 +77,24 @@ class Iterator:
         else:
             raise NotImplementedError
 
+
+class SeqIterator(Iterator):
+    def __init__(self, seq, start=0):
+        if not isinstance(seq, list) and not isinstance(seq, tuple):
+            raise TypeError('Seq must be either a list or a tuple')
+        elif not isinstance(start, int):
+            raise TypeError('Start must be an int')
+        elif start < 0 or start >= len(seq):
+            raise ValueError('Start must be between 0 and %d' % (len(seq)-1))
+
+        self._seq = seq
+        self._curr = start - 1
+
+    def __next__(self):
+        self._curr += 1
+        if self._curr >= len(self._seq): raise StopIteration
+        return self._seq[self._curr]
+
 def validate_range(start, end, step):
     if not isinstance(step, int):
         raise TypeError('Step must be int')
@@ -91,4 +109,5 @@ __all__ = [
     'INF',
     'NEGINF',
     'Iterator',
+    'SeqIterator',
 ]
